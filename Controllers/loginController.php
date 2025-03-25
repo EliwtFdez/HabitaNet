@@ -1,18 +1,20 @@
 <?php
-session_start();
+namespace Controllers;
 
-// Puedes reemplazar esto por datos desde MySQL si quieres
-$usuarios = [
-    'admin' => '1234',
-    'demo' => 'demo'
-];
+class LoginController
+{
+    public function index()
+    {
+        require 'pages/login/login.php';
+    }
 
-$usuario = $_POST['usuario'] ?? '';
-$clave = $_POST['clave'] ?? '';
+    public function login()
+    {
+        $user = $_POST['user'] ?? '';
+        $pass = $_POST['pass'] ?? '';
 
-if (isset($usuarios[$usuario]) && $usuarios[$usuario] === $clave) {
-    $_SESSION['usuario'] = $usuario;
-    header("Location: ../../index.php");
-} else {
-    echo "Credenciales incorrectas. <a href='../../index.php?page=login'>Volver</a>";
+        // Aquí va la lógica de validación, sesión, etc.
+        echo "Login procesado para $user";
+    }
+
 }

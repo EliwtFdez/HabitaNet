@@ -1,35 +1,78 @@
-<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-400 to-purple-500">
-  <form action="controllers/loginController.php" method="POST" class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm transform hover:scale-105 transition-transform duration-300">
-    <h2 class="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">Iniciar Sesión</h2>
-    
-    <p class="text-gray-600 mb-6 text-center">Inicie sesión para administrar su propiedad</p>
+<?php include('../../includes/header.php'); ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Residencias - Inicio de Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
 
-    <div class="mb-4">
-      <label class="block mb-2 text-gray-700 font-semibold">Correo electrónico:</label>
-      <input type="email" name="usuario" required 
-        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
-        placeholder="tu@ejemplo.com">
-    </div>
+    <!-- Contenido principal centrado -->
+    <main class="flex-grow flex items-center justify-center">
+        <div class="w-full max-w-md">
+            <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+                <div class="bg-gray-800 p-6 text-center">
+                    <h2 class="text-2xl font-bold text-white">Sistema de Gestión Residencial</h2>
+                    <p class="text-gray-300 mt-2">Acceso Administrativo</p>
+                </div>
+                
+                <form action="../../controllers/loginController.php" method="POST" class="p-8">
+                    <div class="mb-6">
+                        <label for="email" class="block text-gray-700 font-semibold mb-2">Correo Electrónico</label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            name="usuario" 
+                            required 
+                            placeholder="administrador@residencias.com"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition duration-300"
+                        >
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 font-semibold mb-2">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="password"
+                            name="clave" 
+                            required 
+                            placeholder="Contraseña de acceso"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition duration-300"
+                        >
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <a href="#" class="text-gray-600 hover:text-gray-800 text-sm">
+                            ¿Olvidó su contraseña?
+                        </a>
+                    </div>
+                    
+                    <button 
+                        type="submit" 
+                        class="w-full bg-gray-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition duration-300 shadow-md"
+                    >
+                        Iniciar Sesión
+                    </button>
+                    
+                    <div class="text-center mt-6">
+                        <p class="text-gray-600 text-sm">
+                            ¿Necesita acceso? 
+                            <a href="/register" class="text-gray-800 font-semibold hover:underline">
+                                Contacte al administrador
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
 
-    <div class="mb-4">
-      <label class="block mb-2 text-gray-700 font-semibold">Contraseña:</label>
-      <input type="password" name="clave" required 
-        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
-        placeholder="Ingrese su contraseña">
-    </div>
+    <!-- Footer siempre al fondo -->
+    <footer class="bg-gray-800 text-white text-center py-4 text-sm">
+        <?php include('../../includes/footer.php'); ?>
+    </footer>
 
-    <div class="mb-6 text-right">
-      <a href="#" class="text-blue-500 hover:text-blue-700 text-sm">¿Olvidaste tu contraseña?</a>
-    </div>
-
-    <button type="submit" 
-      class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:from-blue-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-md">
-      Entrar
-    </button>
-
-    <p class="mt-6 text-center text-gray-600">
-      ¿No tienes cuenta? 
-      <a href="#" class="text-blue-500 hover:text-blue-700 font-semibold">Regístrate aquí</a>
-    </p>
-  </form>
-</div>
+</body>
+</html>

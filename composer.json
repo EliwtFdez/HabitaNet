@@ -1,0 +1,15 @@
+{
+    "name": "eliwfdez/htdocs",
+    "autoload": {
+        "psr-4": {
+            "Eliwfdez\\Htdocs\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "EliwtFdez",
+            "email": "shadowkadizz@gmail.com"
+        }
+    ],
+    "require": {}
+}

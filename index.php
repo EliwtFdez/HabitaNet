@@ -1,30 +1,24 @@
 <?php
-session_start();
 
-// Base URL configuration
-$Base = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+require_once 'Controllers/LoginController.php';
+require_once 'Controllers/RegisterController.php';
+require_once 'Controllers/HomeController.php';
 
-// Assets arrays
-$Styles = [];
-$Scripts = [];
-
-// Get the current route
-$route = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-$route = substr($route, strlen(trim(dirname($_SERVER['PHP_SELF']), '/')));
-$route = trim($route, '/');
-
-// Get routes configuration
-$routes = require 'routes.php';
-
-// Prepare the content
-ob_start();
-if (isset($routes[$route])) {
-    $routes[$route]();
-} else {
-    // 404 page or redirect to home
-    header('Location: ' . $Base);
+function defineRoutes($router)
+{
+    $router->get('/', [new \Controllers\DefaulController(), 'index']);
+    $router->get('/login', [new \Controllers\LoginController(), 'index']);
+    $router->post('/login', [new \Controllers\LoginController(), 'login']);
+    
+    $router->get('/home', [new \Controllers\DefaulController(), 'index']);
+    
+    $router->get('/register', [new \Controllers\RegisterController(), 'index']);
+    $router->post('/register', [new \Controllers\RegisterController(), 'register']);
 }
-$Body = ob_get_clean();
 
-// Load the main template
-require 'App.php';
+$router = new Router();
+defineRoutes($router);
+
+// Get the current request URI and dispatch to appropriate controller
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$router->dispatch($requestUri);

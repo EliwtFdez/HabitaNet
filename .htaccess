@@ -1,0 +1,42 @@
+# Activar el motor de reescritura y definir la base
+RewriteEngine On
+RewriteBase /
+
+# ------------------------------------------------------------------
+# Bloquear el acceso directo a archivos PHP, excepto a index.php
+# ------------------------------------------------------------------
+<FilesMatch "^(?!index\.php$).*\.php$">
+    # Para Apache 2.4 (versión recomendada):
+    Require all denied
+    # Para Apache 2.2, usa en su lugar:
+    # Order Deny,Allow
+    # Deny from all
+</FilesMatch>
+
+<Files "index.php">
+    # Permitir el acceso a index.php
+    Require all granted
+    # Para Apache 2.2, usar:
+    # Order Allow,Deny
+    # Allow from all
+</Files>
+
+# ------------------------------------------------------------------
+# Permitir el acceso directo a archivos y directorios existentes
+# (por ejemplo, archivos estáticos como imágenes, CSS, JS, etc.)
+# ------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ------------------------------------------------------------------
+# Redirigir todas las solicitudes restantes a index.php
+# (esto centraliza el manejo de rutas en un único controlador)
+# ------------------------------------------------------------------
+RewriteRule ^ index.php [QSA,L]
+
+# ------------------------------------------------------------------
+# Establecer la Política de Seguridad de Contenido (CSP)
+# Puedes ajustar los orígenes según las necesidades de tu proyecto.
+# ------------------------------------------------------------------
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src *; font-src 'self' https://fonts.gstatic.com/ https://cdn.jsdelivr.net;"
