@@ -4,7 +4,7 @@
             
             <!-- Logo Section -->
             <div class="w-full sm:w-1/3 flex items-center">
-                <img src="../../assets/img/Logo.png" alt="Logo" class="h-40">
+                <img src="assets/img/Logo.png" alt="Logo" class="h-40">
             </div>
             
             <!-- Office Hours Section -->
@@ -30,5 +30,4 @@
         </div>
     </div>
 </footer>
-</html>
 

@@ -2,7 +2,8 @@
     "name": "eliwfdez/htdocs",
     "autoload": {
         "psr-4": {
-            "Eliwfdez\\Htdocs\\": "src/"
+            "Src\\": "api/",
+            "App\\": "public/"
         }
     },
     "authors": [
