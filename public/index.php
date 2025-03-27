@@ -10,18 +10,15 @@ use Src\Core\Router;
 
 $router = new Router();
 
-// Define routes
-$router->add('', 'home/home.php');
-$router->add('login', 'login/login.php');
-$router->add('register', 'register/register.php');
 
-// Set variables for template
+$router->add('', 'home.php');
+$router->add('login', 'login.php');
+$router->add('register', 'register.php');
+
 $Scripts = [
-    'assets/js/main.js'  // Add your JS files here
 ];
 
 $Styles = [
-    'assets/css/custom.css'  // Add your CSS files here
 ];
 
 $router->run();

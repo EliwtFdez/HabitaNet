@@ -30,9 +30,9 @@
     <?php endif; ?>
 </head>
 
-<body>
-
+<body class="min-h-screen">
     <?= $Body; ?>
-    <?php include ('includes/footer.php') ?>
+    <?php include 'includes/footer.php'; ?>
 </body>
 </html>
+

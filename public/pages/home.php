@@ -1,4 +1,6 @@
 
+<?php $routeLogin = "login"; ?>
+
 
 <main class="container mx-auto px-4 py-8">
     <!-- Sección de Información del Proyecto -->
@@ -65,6 +67,9 @@
         </div>
     </section>
 </main>
+
+</body>
+</html>
 
 
 

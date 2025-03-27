@@ -18,13 +18,20 @@ class Router
 
     public function run()
     {
-        $uri = trim($_GET['url'] ?? '', '/');
+        // Get the current URI without query string
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $uri = trim(str_replace($this->base, '', $requestUri), '/');
         
-        // Set base path for assets
         $Base = $this->base;
-        
-        // Load content into $Body
+    
         ob_start();
+
+        $assetPath = realpath(__DIR__ . '/../../public/assets') . '/';
+        function asset($url) {
+            global $assetPath;
+            return $assetPath . $url;
+        }
+        
         if (array_key_exists($uri, $this->routes)) {
             require_once __DIR__ . '/../../public/pages/' . $this->routes[$uri];
         } else {
@@ -32,7 +39,6 @@ class Router
         }
         $Body = ob_get_clean();
         
-        // Load the template with the content
         require_once __DIR__ . '/../../public/App.php';
     }
 }
