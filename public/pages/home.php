@@ -1,6 +1,4 @@
-
 <?php $routeLogin = "login"; ?>
-
 
 <main class="container mx-auto px-4 py-8">
     <!-- Sección de Información del Proyecto -->
@@ -68,6 +66,7 @@
     </section>
 </main>
 
+<?php include __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
 

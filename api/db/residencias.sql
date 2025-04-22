@@ -1,66 +1,82 @@
--- Admin table with additional fields for enhanced security and management
-CREATE TABLE Admin (
+
+-- Crear base de datos
+CREATE DATABASE IF NOT EXISTS residencias;
+USE residencias;
+
+-- Tabla de usuarios
+CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    last_login DATETIME,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE,
-    role ENUM('superadmin', 'admin', 'manager') DEFAULT 'admin'
+    rol ENUM('inquilino', 'comite') NOT NULL,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Casas (Houses) table with more detailed information
-CREATE TABLE Casas (
-    IdCasa INT AUTO_INCREMENT PRIMARY KEY,
-    NumeroCasa VARCHAR(10) NOT NULL UNIQUE,
-    Direccion VARCHAR(255),
-    MetrosCuadrados DECIMAL(10, 2),
-    AñoConstruccion INT,
-    TipoVivienda ENUM('Unifamiliar', 'Departamento', 'Duplex', 'Otro') DEFAULT 'Otro'
+-- Tabla de casas
+CREATE TABLE casas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    numero_casa VARCHAR(10) NOT NULL UNIQUE,
+    id_inquilino INT,
+    FOREIGN KEY (id_inquilino) REFERENCES usuarios(id)
 );
 
--- Residentes (Residents) table with expanded personal information
-CREATE TABLE Residentes (
-    IdResidente INT AUTO_INCREMENT PRIMARY KEY,
-    Nombre VARCHAR(100) NOT NULL,
-    ApellidoPaterno VARCHAR(50) NOT NULL,
-    ApellidoMaterno VARCHAR(50),
-    Email VARCHAR(100) UNIQUE,
-    Telefono VARCHAR(20),
-    FechaNacimiento DATE,
-    IdCasa INT,
-    FechaIngreso DATE DEFAULT CURRENT_DATE,
-    FOREIGN KEY (IdCasa) REFERENCES Casas(IdCasa)
+-- Tabla de cuotas
+CREATE TABLE cuotas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    monto DECIMAL(10,2) NOT NULL DEFAULT 650.00,
+    recargo DECIMAL(10,2) NOT NULL DEFAULT 50.00,
+    mes YEAR,
+    anio INT
 );
 
--- Cuotas (Fees) table with more comprehensive fee tracking
-CREATE TABLE Cuotas (
-    IdCuota INT AUTO_INCREMENT PRIMARY KEY,
-    Nombre VARCHAR(100) NOT NULL,
-    Descripcion TEXT,
-    Monto DECIMAL(10, 2) NOT NULL,
-    FrecuenciaPago ENUM('Mensual', 'Trimestral', 'Anual', 'Unica') DEFAULT 'Mensual',
-    FechaInicio DATE,
-    FechaFin DATE,
-    Activo BOOLEAN DEFAULT TRUE
+-- Tabla de pagos
+CREATE TABLE pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    id_casa INT,
+    fecha_pago DATE NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    recargo_aplicado BOOLEAN DEFAULT FALSE,
+    concepto VARCHAR(255),
+    comprobante_pago VARCHAR(255),
+    confirmado_por INT,
+    fecha_confirmacion DATETIME,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id),
+    FOREIGN KEY (id_casa) REFERENCES casas(id),
+    FOREIGN KEY (confirmado_por) REFERENCES usuarios(id)
 );
 
--- Pagos (Payments) table with enhanced payment tracking
-CREATE TABLE Pagos (
-    IdPago INT AUTO_INCREMENT PRIMARY KEY,
-    IdResidente INT,
-    IdCuota INT,
-    FechaPago DATE,
-    MontoPagado DECIMAL(10, 2),
-    MetodoPago ENUM('Efectivo', 'Transferencia', 'Tarjeta', 'Otro') DEFAULT 'Otro',
-    Comprobante VARCHAR(255),
-    Estado ENUM('Pendiente', 'Pagado', 'Parcial', 'Vencido') DEFAULT 'Pendiente',
-    FOREIGN KEY (IdResidente) REFERENCES Residentes(IdResidente),
-    FOREIGN KEY (IdCuota) REFERENCES Cuotas(IdCuota)
+-- Tabla de egresos
+CREATE TABLE egresos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    motivo TEXT,
+    pagado_a VARCHAR(100),
+    registrado_por INT,
+    FOREIGN KEY (registrado_por) REFERENCES usuarios(id)
 );
 
--- Additional index for performance optimization
-CREATE INDEX idx_residente_casa ON Residentes(IdCasa);
-CREATE INDEX idx_pago_residente ON Pagos(IdResidente);
-CREATE INDEX idx_pago_cuota ON Pagos(IdCuota);
+-- Tabla de solicitudes de servicios
+CREATE TABLE solicitudes_servicios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    tipo ENUM('alberca', 'palapa', 'mantenimiento') NOT NULL,
+    fecha_solicitud DATE NOT NULL,
+    comentario TEXT,
+    estatus ENUM('pendiente', 'atendido', 'rechazado') DEFAULT 'pendiente',
+    respuesta TEXT,
+    fecha_respuesta DATE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);
+
+-- Tabla de mensajes del foro
+CREATE TABLE mensajes_foro (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    mensaje TEXT NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    visible BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);

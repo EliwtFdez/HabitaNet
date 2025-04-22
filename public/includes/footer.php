@@ -1,5 +1,6 @@
 <?php
-$routeImages = '../../public/assets/img/Logo.png';
+// Change the image path to use absolute path from root
+$routeImages = '/HabitaNet/public/assets/img/Logo.png';
 ?>
 
 <footer class="w-full bg-gray-900 text-white">
