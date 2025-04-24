@@ -1,6 +1,7 @@
-<?php include __DIR__ . '/../includes/header.php'; ?>
+<body>
+    <?php include __DIR__ . '/../../Components/slidebar.php'; ?>
 
-<main class="container mx-auto p-4">
+    <main class="ml-64 p-6">
     <h2 class="text-2xl font-bold mb-6">Registro de Egresos</h2>
     
     <div class="bg-white p-6 rounded-lg shadow">
@@ -19,4 +20,3 @@
     </div>
 </main>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -21,13 +21,13 @@ $router = new Router();
 // ======================
 
 // Ruta para la página de inicio
-$router->add('', 'home.php');
+$router->add('', 'pages/home.php');
 
 // Ruta para el login
-$router->add('login', 'login.php');
+$router->add('login', 'pages/login.php');
 
 // Ruta para el registro
-$router->add('register', 'register.php');
+$router->add('register', 'pages/register.php');
 
 // ======================
 // RUTAS PRIVADAS
@@ -58,10 +58,10 @@ $router->add('comunicacion', 'pages/comunicacion.php');
 // ======================
 // RUTAS PARA EL COMITÉ
 // ======================
-$router->add('comite/estadoCuenta', 'pages/comite/estadoCuenta.php');
-$router->add('comite/registroEgreso', 'pages/comite/registroEgreso.php');
-$router->add('comite/reporteMensual', 'pages/comite/reporteMensual.php');
-$router->add('comite/acuseRecibo', 'pages/comite/acuseRecibo.php');
+$router->add('comite/estadoCuenta', 'comite/estadoCuenta.php');
+$router->add('comite/registroEgreso', 'comite/registroEgreso.php');
+$router->add('comite/reporteMensual', 'comite/reporteMensual.php');
+$router->add('comite/acuseRecibo', 'comite/acuseRecibo.php');
 
 // ======================
 // RUTAS PARA INQUILINOS
