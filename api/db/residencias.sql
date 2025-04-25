@@ -4,6 +4,7 @@ CREATE DATABASE IF NOT EXISTS residencias;
 USE residencias;
 
 -- Tabla de usuarios
+--LISTO CONTROLLER Y AGREGADO A LA API
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,

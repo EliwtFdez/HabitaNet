@@ -11,6 +11,7 @@ class Conexion {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
+        // Configuracion Produccion
         $host = $_ENV['DB_HOST']; 
         $port = $_ENV['DB_PORT'] ?? '3306';
         $db = $_ENV['DB_NAME'];
@@ -18,8 +19,18 @@ class Conexion {
         $pass = $_ENV['DB_PASS'];
         $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4'; 
 
+
+        // Configuración local
+        // $host = 'localhost'; 
+        // $port = '3306';
+        // $db = 'residencias'; 
+        // $user = 'root'; 
+        // $pass = ''; 
+        // $charset = 'utf8mb4';
+
         try {
-            $dsn = "mysql:host=$host;dbname=$db;charset=$charset";//;port=$port
+            // Configuración de la conexión
+            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

@@ -1,17 +1,19 @@
 RewriteEngine On
-RewriteBase /HabitaNet/public/
 
+# If the request is not for an existing file
 RewriteCond %{REQUEST_FILENAME} !-f
+# If the request is not for an existing directory
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+# Rewrite the request to index.php, passing the path as 'url' parameter
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 
-# Seguridad
+# Security Headers (Keep your existing ones)
 Header set X-Content-Type-Options "nosniff"
 Header set X-XSS-Protection "1; mode=block"
 Header set X-Frame-Options "SAMEORIGIN"
 Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src * data:; font-src 'self' https://fonts.gstatic.com/ https://cdn.jsdelivr.net;"
 
-# Prevenir caching de páginas privadas
+# Prevenir caching de páginas privadas (Keep your existing ones)
 <FilesMatch "\.(php)$">
     Header set Cache-Control "no-store, no-cache, must-revalidate"
     Header set Pragma "no-cache"

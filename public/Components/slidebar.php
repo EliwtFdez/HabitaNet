@@ -32,13 +32,23 @@ $currentUri = $_SERVER['REQUEST_URI']; // Obtener la URI actual para comparació
                         </a>
                     </li>
                     <li>
-                        <a href="/HabitaNet/public/comite/reporteMensual" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/reporteMensual' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
-                            <span>Reporte Mensual</span>
+                        <a href="/HabitaNet/public/comite/reportes" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/reporteMensual' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
+                            <span>Reportes</span>
                         </a>
                     </li>
                     <li>
                         <a href="/HabitaNet/public/comite/acuseRecibo" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/acuseRecibo' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
                             <span>Acuse de Recibo</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/HabitaNet/public/comite/usuariosCasas" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/usuariosCasas' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
+                            <span>Usuarios y Casas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/HabitaNet/public/comite/registroCasa" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/registroCasa' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
+                            <span>Registrar Casa</span>
                         </a>
                     </li>
                 </ul>

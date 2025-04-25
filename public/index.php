@@ -12,6 +12,8 @@ session_start();
 // Importar las clases necesarias
 use Api\Core\Router;
 use Api\Controllers\UserController;
+use Api\Controllers\CasaController;
+use Api\Controllers\CuotaController;
 
 // Crear una nueva instancia del enrutador
 $router = new Router();
@@ -28,6 +30,10 @@ $router->add('login', 'pages/login.php');
 
 // Ruta para el registro
 $router->add('register', 'pages/register.php');
+
+// Ruta para procesar pagos
+$router->add('procesar_pago', 'pages/comprobantes/procesar_pago.php');
+
 
 // ======================
 // RUTAS PRIVADAS
@@ -60,8 +66,10 @@ $router->add('comunicacion', 'pages/comunicacion.php');
 // ======================
 $router->add('comite/estadoCuenta', 'comite/estadoCuenta.php');
 $router->add('comite/registroEgreso', 'comite/registroEgreso.php');
-$router->add('comite/reporteMensual', 'comite/reporteMensual.php');
+$router->add('comite/reportes', 'comite/reportes.php');
 $router->add('comite/acuseRecibo', 'comite/acuseRecibo.php');
+$router->add('comite/usuariosCasas', 'comite/usuariosCasas.php');
+$router->add('comite/registroCasa', 'comite/registroCasa.php');
 
 // ======================
 // RUTAS PARA INQUILINOS
@@ -136,6 +144,89 @@ $router->add('api/users/(\d+)/password', function($id) {
     $controller->updatePassword($id);
 });
 
+// RUTAS PARA CASAS
+// ======================
+
+// Ruta para obtener todas las casas (API)
+$router->add('api/casas', function() {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('GET');
+});
+
+// Ruta para obtener una casa específica (API)
+$router->add('api/casas/(\d+)', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('GET', $id);
+});
+
+// Ruta para crear una nueva casa (API)
+$router->add('api/casas/create', function() {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('POST');
+});
+
+// Ruta para actualizar una casa (API)
+$router->add('api/casas/(\d+)/update', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('PUT', $id);
+});
+
+// Ruta para eliminar una casa (API)
+$router->add('api/casas/(\d+)/delete', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('DELETE', $id);
+});
+
+// Ruta para obtener casas disponibles (API)
+$router->add('api/casas/disponibles', function() {
+    header('Content-Type: application/json');
+    $controller = new CasaController();
+    $controller->handleRequest('GET', 'disponibles');
+});
+
+// RUTAS PARA CUOTAS
+// ======================
+
+// Ruta para obtener todas las cuotas (API)
+$router->add('api/cuotas', function() {
+    header('Content-Type: application/json');
+    $controller = new CuotaController();
+    $controller->handleRequest('GET');
+});
+
+// Ruta para obtener una cuota específica (API)
+$router->add('api/cuotas/(\d+)', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CuotaController();
+    $controller->handleRequest('GET', $id);
+});
+
+// Ruta para crear una nueva cuota (API)
+$router->add('api/cuotas/create', function() {
+    header('Content-Type: application/json');
+    $controller = new CuotaController();
+    $controller->handleRequest('POST');
+});
+
+// Ruta para actualizar una cuota (API)
+$router->add('api/cuotas/(\d+)/update', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CuotaController();
+    $controller->handleRequest('PUT', $id);
+});
+
+// Ruta para eliminar una cuota (API)
+$router->add('api/cuotas/(\d+)/delete', function($id) {
+    header('Content-Type: application/json');
+    $controller = new CuotaController();
+    $controller->handleRequest('DELETE', $id);
+});
+
 // ======================
 // RUTA PARA CERRAR SESIÓN
 // ======================
@@ -144,6 +235,183 @@ $router->add('logout', function() {
     session_destroy();
     header('Location: login');
     exit;
+});
+
+// RUTAS PARA MENSAJES DEL FORO
+// ======================
+
+// Ruta para obtener todos los mensajes (API)
+$router->add('api/mensajes', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->handleRequest('GET');
+});
+
+// Ruta para obtener un mensaje específico (API)
+$router->add('api/mensajes/(\d+)', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->handleRequest('GET', $id);
+});
+
+// Ruta para crear un nuevo mensaje (API)
+$router->add('api/mensajes/create', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->handleRequest('POST');
+});
+
+// Ruta para actualizar un mensaje (API)
+$router->add('api/mensajes/(\d+)/update', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->handleRequest('PUT', $id);
+});
+
+// Ruta para eliminar un mensaje (API)
+$router->add('api/mensajes/(\d+)/delete', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->handleRequest('DELETE', $id);
+});
+
+// Ruta para obtener mensajes por usuario (API)
+$router->add('api/mensajes/usuario/(\d+)', function($id_usuario) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->obtenerMensajesPorUsuario($id_usuario);
+});
+
+// Ruta para ocultar un mensaje (API)
+$router->add('api/mensajes/(\d+)/ocultar', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->ocultarMensaje($id);
+});
+
+// Ruta para obtener mensajes recientes (API)
+$router->add('api/mensajes/recientes/(\d+)', function($limite) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\MensajeForoController();
+    $controller->obtenerMensajesRecientes($limite);
+});
+
+// RUTAS PARA SOLICITUDES DE SERVICIO
+// ======================
+
+// Ruta para obtener todas las solicitudes (API)
+$router->add('api/solicitudes', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->handleRequest('GET');
+});
+
+// Ruta para obtener una solicitud específica (API)
+$router->add('api/solicitudes/(\d+)', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->handleRequest('GET', $id);
+});
+
+// Ruta para crear una nueva solicitud (API)
+$router->add('api/solicitudes/create', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->handleRequest('POST');
+});
+
+// Ruta para actualizar una solicitud (API)
+$router->add('api/solicitudes/(\d+)/update', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->handleRequest('PUT', $id);
+});
+
+// Ruta para eliminar una solicitud (API)
+$router->add('api/solicitudes/(\d+)/delete', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->handleRequest('DELETE', $id);
+});
+
+// Ruta para obtener solicitudes por usuario (API)
+$router->add('api/solicitudes/usuario/(\d+)', function($id_usuario) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->obtenerSolicitudesPorUsuario($id_usuario);
+});
+
+// Ruta para actualizar el estatus de una solicitud (API)
+$router->add('api/solicitudes/(\d+)/estatus', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->actualizarEstatus($id);
+});
+
+// Ruta para obtener solicitudes por estatus (API)
+$router->add('api/solicitudes/estatus/(\w+)', function($estatus) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->obtenerSolicitudesPorEstatus($estatus);
+});
+
+// Ruta para obtener solicitudes por tipo (API)
+$router->add('api/solicitudes/tipo/(\w+)', function($tipo) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\SolicitudServicioController();
+    $controller->obtenerSolicitudesPorTipo($tipo);
+});
+
+// RUTAS PARA EGRESOS
+// ======================
+
+// Ruta para obtener todos los egresos (API)
+$router->add('api/egresos', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->handleRequest('GET');
+});
+
+// Ruta para obtener un egreso específico (API)
+$router->add('api/egresos/(\d+)', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->handleRequest('GET', $id);
+});
+
+// Ruta para crear un nuevo egreso (API)
+$router->add('api/egresos/create', function() {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->handleRequest('POST');
+});
+
+// Ruta para actualizar un egreso (API)
+$router->add('api/egresos/(\d+)/update', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->handleRequest('PUT', $id);
+});
+
+// Ruta para eliminar un egreso (API)
+$router->add('api/egresos/(\d+)/delete', function($id) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->handleRequest('DELETE', $id);
+});
+
+// Ruta para obtener egresos por usuario (API)
+$router->add('api/egresos/usuario/(\d+)', function($id_usuario) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->obtenerEgresosPorUsuario($id_usuario);
+});
+
+// Ruta para obtener egresos por fecha (API)
+$router->add('api/egresos/fecha/(\d{4}-\d{2}-\d{2})/(\d{4}-\d{2}-\d{2})', function($fecha_inicio, $fecha_fin) {
+    header('Content-Type: application/json');
+    $controller = new \Api\Controllers\EgresoController();
+    $controller->obtenerEgresosPorFecha($fecha_inicio, $fecha_fin);
 });
 
 // Arrays para scripts y estilos (pueden ser usados en las vistas)
