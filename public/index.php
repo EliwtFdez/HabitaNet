@@ -4,7 +4,25 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // Configuración para mostrar errores (solo en desarrollo)
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+
+// Manejador de errores personalizado para API
+function handleError($errno, $errstr, $errfile, $errline) {
+    if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => $errstr,
+            'file' => basename($errfile),
+            'line' => $errline
+        ]);
+        exit;
+    }
+    return false;
+}
+
+set_error_handler('handleError');
 
 // Iniciar la sesión
 session_start();
@@ -14,6 +32,7 @@ use Api\Core\Router;
 use Api\Controllers\UserController;
 use Api\Controllers\CasaController;
 use Api\Controllers\CuotaController;
+use Api\Controllers\PagoController;
 
 // Crear una nueva instancia del enrutador
 $router = new Router();
@@ -227,8 +246,95 @@ $router->add('api/cuotas/(\d+)/delete', function($id) {
     $controller->handleRequest($_SERVER['REQUEST_METHOD'], $id); // ✅ usar método real
 });
 
+// Ruta para obtener estado de cuenta
+$router->add('api/usuarios/(\d+)/estadoCuenta', function($id_usuario) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->getEstadoCuenta($id_usuario);
+});
+
+// Ruta para obtener pagos por usuario
+$router->add('api/pagos/usuario/(\d+)', function($id_usuario) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->getPagosPorUsuario($id_usuario);
+});
+
+// Ruta para registrar pago (API)
+$router->add('api/pagos', function() {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Método no permitido']);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->registrarPago();
+});
+
+// Ruta para confirmar pago (API)
+$router->add('api/pagos/(\d+)/confirmar', function($id_pago) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Método no permitido']);
+        exit;
+    }
+    
+    $controller = new \Api\Controllers\ConfirmarController();
+    $resultado = $controller->confirmarPago($id_pago, $_SESSION['user_id']);
+    
+    if (!$resultado['success']) {
+        http_response_code(400);
+    }
+    
+    echo json_encode($resultado);
+});
 
 // ======================
+$router->add('api/mensajes', function() {
+
 // RUTA PARA CERRAR SESIÓN
 // ======================
 $router->add('logout', function() {
@@ -242,7 +348,6 @@ $router->add('logout', function() {
 // ======================
 
 // Ruta para obtener todos los mensajes (API)
-$router->add('api/mensajes', function() {
     header('Content-Type: application/json');
     $controller = new \Api\Controllers\MensajeForoController();
     $controller->handleRequest('GET');
@@ -413,6 +518,113 @@ $router->add('api/egresos/fecha/(\d{4}-\d{2}-\d{2})/(\d{4}-\d{2}-\d{2})', functi
     header('Content-Type: application/json');
     $controller = new \Api\Controllers\EgresoController();
     $controller->obtenerEgresosPorFecha($fecha_inicio, $fecha_fin);
+});
+
+// Rutas para usuarios
+$router->add('api/usuarios/(\d+)/estadoCuenta', function($id) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new \Api\Controllers\UsuarioController();
+    $controller->getEstadoCuenta($id);
+});
+
+// Rutas para pagos
+$router->add('api/pagos', function() {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new \Api\Controllers\PagoController();
+    $controller->registrarPago();
+});
+
+$router->add('api/pagos', function() {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new \Api\Controllers\PagoController();
+    $controller->registrarPago();
+});
+
+// RUTAS PARA PAGOS Y ESTADO DE CUENTA
+// ======================
+
+// Ruta para obtener estado de cuenta (API)
+$router->add('api/usuarios/(\d+)/estadoCuenta', function($id_usuario) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->getEstadoCuenta($id_usuario);
+});
+
+// Ruta para obtener pagos por usuario (API)
+$router->add('api/pagos/usuario/(\d+)', function($id_usuario) {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->getPagosPorUsuario($id_usuario);
+});
+
+// Ruta para registrar pago (API)
+$router->add('api/pagos', function() {
+    header('Content-Type: application/json');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Accept");
+    header("Access-Control-Allow-Credentials: true");
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Método no permitido']);
+        exit;
+    }
+    
+    $controller = new PagoController();
+    $controller->registrarPago();
 });
 
 // Arrays para scripts y estilos (pueden ser usados en las vistas)

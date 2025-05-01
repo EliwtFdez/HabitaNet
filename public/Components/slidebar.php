@@ -79,7 +79,7 @@ $currentUri = $_SERVER['REQUEST_URI']; // Obtener la URI actual para comparació
 
         <!-- Sección de cierre de sesión -->
         <div class="mt-8 pt-4 border-t border-gray-700">
-            <form action="/HabitaNet/public/logout" method="POST"> <!-- Asegúrate que la acción del logout sea correcta -->
+            <form action="/HabitaNet/public/login" method="POST"> <!-- Asegúrate que la acción del logout sea correcta -->
                 <button type="submit" class="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded-lg w-full text-gray-300">
                     <i class="mdi mdi-logout"></i> <!-- Considera añadir un icono si usas una librería como Material Design Icons -->
                     <span>Cerrar sesión</span>

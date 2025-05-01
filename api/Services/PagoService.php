@@ -116,4 +116,28 @@ class PagoService {
         }
         return $pagos;
     }
-} 
+
+public static function getPagosPorUsuario($id_usuario) {
+    try {
+        $conn = Conexion::conectar();
+
+        $query = "SELECT p.*, u.nombre as confirmado_por_nombre 
+                  FROM pagos p 
+                  LEFT JOIN usuarios u ON p.confirmado_por = u.id 
+                  WHERE p.id_usuario = :id_usuario 
+                  ORDER BY p.fecha_pago DESC";
+
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (Exception $e) {
+        throw new Exception("Error al obtener pagos: " . $e->getMessage());
+    }
+}
+
+
+
+}

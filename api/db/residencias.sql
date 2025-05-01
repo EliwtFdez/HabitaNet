@@ -33,12 +33,12 @@ CREATE TABLE cuotas (
 -- Tabla de pagos
 CREATE TABLE pagos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT,
-    id_casa INT,
+    id_usuario INT NOT NULL,
+    id_casa INT NOT NULL,
     fecha_pago DATE NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
-    recargo_aplicado BOOLEAN DEFAULT FALSE,
-    concepto VARCHAR(255),
+    recargo_aplicado BOOLEAN NOT NULL DEFAULT FALSE,
+    concepto VARCHAR(255) NOT NULL,
     comprobante_pago VARCHAR(255),
     confirmado_por INT,
     fecha_confirmacion DATETIME,

@@ -1,5 +1,19 @@
 <?php
 require_once __DIR__ . '/../../../api/Services/CuotaService.php';
+require_once __DIR__ . '/../../includes/auth.php';
+
+// Verificar si el usuario está autenticado
+if (!isLoggedIn()) {
+    header('Location: /HabitaNet/public/login');
+    exit;
+}
+
+// Verificar si el usuario es del comité
+if (!isComite()) {
+    header('Location: /HabitaNet/public/dashboard');
+    exit;
+}
+
 use Api\Services\CuotaService;
 
 $servicio = new CuotaService();
@@ -12,7 +26,7 @@ if (isset($_GET['eliminar'])) {
     } else {
         $_SESSION['mensaje'] = "❌ No se pudo eliminar la cuota.";
     }
-    header('Location: ' . $_SERVER['PHP_SELF']);
+    header('Location: /HabitaNet/public/comite/cuotas');
     exit;
 }
 
@@ -38,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['mensaje'] = '❌ Fecha inválida.';
     }
 
-    header('Location: ' . $_SERVER['PHP_SELF']);
+    header('Location: /HabitaNet/public/comite/cuotas');
     exit;
 }
 
@@ -115,7 +129,7 @@ $meses = [
                                 <td class="px-4 py-2"><?= $meses[intval($cuota->getMes())] ?? 'Mes inválido' ?></td>
                                 <td class="px-4 py-2"><?= $cuota->getAnio() ?></td>
                                 <td class="px-4 py-2">
-                                    <a href="?eliminar=<?= $cuota->getId() ?>"
+                                    <a href="/HabitaNet/public/comite/cuotas?eliminar=<?= $cuota->getId() ?>"
                                        onclick="return confirm('¿Eliminar esta cuota?');"
                                        class="text-red-600 hover:underline">Eliminar</a>
                                 </td>

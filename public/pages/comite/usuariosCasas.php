@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['desasignar_id'])) {
     $stmtUpdate->execute();
 
     // Redirige para evitar reenvío de formulario y mantener paginación
-    header("Location: ?pagina=" . $pagina_actual);
+    header("Location: /HabitaNet/public/comite/usuariosCasas?pagina=" . $pagina_actual);
     exit;
 }
 
@@ -111,7 +111,7 @@ $resultadoCasas = $stmtCasas->fetchAll(PDO::FETCH_ASSOC);
                             <?php if ($casa['inquilino_nombre']): ?>
                                 <div class="flex items-center justify-between">
                                     <span><?php echo htmlspecialchars($casa['inquilino_nombre']); ?></span>
-                                    <form method="POST" action="?pagina=<?php echo $pagina_actual; ?>" onsubmit="return confirm('¿Estás seguro de quitar al inquilino de esta casa?');">
+                                    <form method="POST" action="/HabitaNet/public/comite/usuariosCasas?pagina=<?php echo $pagina_actual; ?>" onsubmit="return confirm('¿Estás seguro de quitar al inquilino de esta casa?');">
                                         <input type="hidden" name="desasignar_id" value="<?php echo $casa['id']; ?>">
                                         <button type="submit" class="ml-4 px-3 py-1 text-sm text-white bg-red-500 hover:bg-red-600 rounded">
                                             Quitar
