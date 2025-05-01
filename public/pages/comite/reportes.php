@@ -5,7 +5,7 @@
         <div class="max-w-4xl mx-auto space-y-8">
             <!-- Reporte Anual -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Reporte Anual</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Reporte Cuotas</h2>
                 <form class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>

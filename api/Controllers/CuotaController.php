@@ -71,46 +71,107 @@ class CuotaController {
     private function crearCuota() {
         $data = json_decode(file_get_contents('php://input'), true);
         
-        if (!isset($data['monto']) || !isset($data['mes']) || !isset($data['anio'])) {
+        // Validación de campos requeridos y tipos
+        if (!isset($data['monto']) || !is_numeric($data['monto']) || $data['monto'] < 0) {
             http_response_code(400);
-            echo json_encode(['error' => 'El monto, mes y año son requeridos']);
+            echo json_encode(['error' => 'El monto es requerido y debe ser un número positivo.']);
             exit;
         }
+        if (!isset($data['mes']) || !is_numeric($data['mes']) || $data['mes'] < 1 || $data['mes'] > 12 || floor($data['mes']) != $data['mes']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El mes es requerido y debe ser un entero entre 1 y 12.']);
+            exit;
+        }
+        if (!isset($data['anio']) || !is_numeric($data['anio']) || $data['anio'] < 2020 || floor($data['anio']) != $data['anio']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El año es requerido y debe ser un entero mayor o igual a 2020.']);
+            exit;
+        }
+        // Validación opcional para recargo
+        $recargo = $data['recargo'] ?? 50.00; // Valor por defecto si no se proporciona
+        if (!is_numeric($recargo) || $recargo < 0) {
+             http_response_code(400);
+             echo json_encode(['error' => 'El recargo debe ser un número positivo.']);
+             exit;
+        }
 
-        $id = $this->cuotaService->crearCuota(
-            $data['monto'],
-            $data['recargo'] ?? 50.00,
-            $data['mes'],
-            $data['anio']
-        );
 
-        http_response_code(201);
-        echo json_encode(['id' => $id, 'mensaje' => 'Cuota creada exitosamente']);
+        try {
+            $id = $this->cuotaService->crearCuota(
+                $data['monto'],
+                $recargo,
+                (int)$data['mes'], // Asegurar que se pasa como entero
+                (int)$data['anio']  // Asegurar que se pasa como entero
+            );
+
+            http_response_code(201);
+            echo json_encode(['id' => $id, 'mensaje' => 'Cuota creada exitosamente']);
+        } catch (\InvalidArgumentException $e) {
+             http_response_code(400);
+             echo json_encode(['error' => $e->getMessage()]);
+        } catch (\Exception $e) {
+            // Log general error $e->getMessage()
+            http_response_code(500);
+            echo json_encode(['error' => 'Error interno al crear la cuota.']);
+        }
         exit;
     }
 
     private function actualizarCuota($id) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!isset($data['monto']) || !isset($data['mes']) || !isset($data['anio'])) {
+         if (!$id || !is_numeric($id)) {
             http_response_code(400);
-            echo json_encode(['error' => 'El monto, mes y año son requeridos']);
+            echo json_encode(['error' => 'ID de cuota inválido.']);
             exit;
         }
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+         // Validación de campos requeridos y tipos
+        if (!isset($data['monto']) || !is_numeric($data['monto']) || $data['monto'] < 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El monto es requerido y debe ser un número positivo.']);
+            exit;
+        }
+        if (!isset($data['mes']) || !is_numeric($data['mes']) || $data['mes'] < 1 || $data['mes'] > 12 || floor($data['mes']) != $data['mes']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El mes es requerido y debe ser un entero entre 1 y 12.']);
+            exit;
+        }
+        if (!isset($data['anio']) || !is_numeric($data['anio']) || $data['anio'] < 2020 || floor($data['anio']) != $data['anio']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El año es requerido y debe ser un entero mayor o igual a 2020.']);
+            exit;
+        }
+        // Validación opcional para recargo
+        $recargo = $data['recargo'] ?? 50.00; // Valor por defecto si no se proporciona
+        if (!is_numeric($recargo) || $recargo < 0) {
+             http_response_code(400);
+             echo json_encode(['error' => 'El recargo debe ser un número positivo.']);
+             exit;
+        }
 
-        $resultado = $this->cuotaService->actualizarCuota(
-            $id,
-            $data['monto'],
-            $data['recargo'] ?? 50.00,
-            $data['mes'],
-            $data['anio']
-        );
+        try {
+            $resultado = $this->cuotaService->actualizarCuota(
+                (int)$id,
+                $data['monto'],
+                $recargo,
+                (int)$data['mes'], // Asegurar que se pasa como entero
+                (int)$data['anio']  // Asegurar que se pasa como entero
+            );
 
-        if ($resultado) {
-            echo json_encode(['mensaje' => 'Cuota actualizada exitosamente']);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Cuota no encontrada']);
+            if ($resultado) {
+                echo json_encode(['mensaje' => 'Cuota actualizada exitosamente']);
+            } else {
+                // Podría ser que la cuota no exista o que la validación del servicio falle (aunque ya validamos aquí)
+                http_response_code(404); // O 400 dependiendo de la causa exacta
+                echo json_encode(['error' => 'No se pudo actualizar la cuota. Verifique el ID o los datos.']);
+            }
+        } catch (\InvalidArgumentException $e) {
+             http_response_code(400);
+             echo json_encode(['error' => $e->getMessage()]);
+        } catch (\Exception $e) {
+            // Log general error $e->getMessage()
+            http_response_code(500);
+            echo json_encode(['error' => 'Error interno al actualizar la cuota.']);
         }
         exit;
     }
@@ -126,4 +187,4 @@ class CuotaController {
         }
         exit;
     }
-} 
+}

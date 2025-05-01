@@ -1,154 +1,81 @@
 <?php
-namespace Api\Controllers;
+require_once __DIR__ . '/../Core/Conexion.php';
 
-require_once __DIR__ . '/../Services/PagoService.php';
+use Api\Core\Conexion;
 
-class PagoController {
-    private $pagoService;
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET");
+header("Access-Control-Allow-Headers: Content-Type");
 
-    public function __construct() {
-        $this->pagoService = new \Api\Services\PagoService();
-    }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $conn = Conexion::conectar();
 
-    public function handleRequest($method, $id = null) {
-        switch ($method) {
-            case 'GET':
-                if ($id) {
-                    $this->obtenerPago($id);
-                } else {
-                    $this->obtenerTodosLosPagos();
-                }
-                break;
-            case 'POST':
-                $this->crearPago();
-                break;
-            case 'PUT':
-                if ($id) {
-                    $this->actualizarPago($id);
-                }
-                break;
-            case 'DELETE':
-                if ($id) {
-                    $this->eliminarPago($id);
-                }
-                break;
-            default:
-                http_response_code(405);
-                echo json_encode(['error' => 'Método no permitido']);
+        // Validar campos requeridos
+        if (!isset($_POST['id_usuario'], $_POST['fecha_pago'], $_POST['monto'], $_POST['concepto'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Faltan campos obligatorios.']);
+            exit;
+        }
+
+        $id_usuario = $_POST['id_usuario'];
+        $fecha_pago = $_POST['fecha_pago'];
+        $monto = $_POST['monto'];
+        $concepto = $_POST['concepto'];
+        $recargo_aplicado = isset($_POST['recargo_aplicado']) && $_POST['recargo_aplicado'] === 'true' ? 1 : 0;
+
+        $mes = date('m', strtotime($fecha_pago));
+        $anio = date('Y', strtotime($fecha_pago));
+
+        // Obtener la casa vinculada al usuario
+        $stmtCasa = $conn->prepare("SELECT id FROM casas WHERE id_inquilino = ?");
+        $stmtCasa->execute([$id_usuario]);
+        $casa = $stmtCasa->fetch(PDO::FETCH_ASSOC);
+
+        if (!$casa) {
+            http_response_code(404);
+            echo json_encode(['error' => 'No se encontró una casa asignada.']);
+            exit;
+        }
+
+        $id_casa = $casa['id'];
+
+        // Procesar el archivo comprobante
+        $comprobante_nombre = null;
+        if (isset($_FILES['comprobante']) && $_FILES['comprobante']['error'] === UPLOAD_ERR_OK) {
+            $nombre_tmp = $_FILES['comprobante']['tmp_name'];
+            $nombre_archivo = uniqid() . "_" . basename($_FILES['comprobante']['name']);
+            $ruta_destino = __DIR__ . '/../../public/uploads/comprobantes/' . $nombre_archivo;
+
+            if (move_uploaded_file($nombre_tmp, $ruta_destino)) {
+                $comprobante_nombre = $nombre_archivo;
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error al subir el comprobante.']);
                 exit;
-        }
-    }
-
-    private function obtenerPago($id) {
-        $pago = $this->pagoService->obtenerPago($id);
-        if ($pago) {
-            echo json_encode($pago);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Pago no encontrado']);
-        }
-        exit;
-    }
-
-    private function obtenerTodosLosPagos() {
-        $pagos = $this->pagoService->obtenerTodosLosPagos();
-        echo json_encode($pagos);
-        exit;
-    }
-
-    private function crearPago() {
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!isset($data['id_usuario']) || !isset($data['id_casa']) || !isset($data['fecha_pago']) || 
-            !isset($data['monto']) || !isset($data['concepto'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Faltan campos requeridos']);
-            exit;
+            }
         }
 
-        $id = $this->pagoService->crearPago(
-            $data['id_usuario'],
-            $data['id_casa'],
-            $data['fecha_pago'],
-            $data['monto'],
-            $data['recargo_aplicado'] ?? 0,
-            $data['concepto'],
-            $data['comprobante_pago'] ?? null
-        );
+        // Insertar el pago
+        $stmt = $conn->prepare("
+            INSERT INTO pagos (
+                id_usuario, id_casa, fecha_pago, monto, recargo_aplicado,
+                concepto, comprobante_pago
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $id_usuario,
+            $id_casa,
+            $fecha_pago,
+            $monto,
+            $recargo_aplicado,
+            $concepto,
+            $comprobante_nombre
+        ]);
 
-        echo json_encode(['id' => $id, 'mensaje' => 'Pago creado exitosamente']);
-        exit;
+        echo json_encode(['mensaje' => 'Pago registrado exitosamente. Pendiente de confirmación.']);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al procesar el pago: ' . $e->getMessage()]);
     }
-
-    private function actualizarPago($id) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!isset($data['id_usuario']) || !isset($data['id_casa']) || !isset($data['fecha_pago']) || 
-            !isset($data['monto']) || !isset($data['concepto'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Faltan campos requeridos']);
-            exit;
-        }
-
-        $resultado = $this->pagoService->actualizarPago(
-            $id,
-            $data['id_usuario'],
-            $data['id_casa'],
-            $data['fecha_pago'],
-            $data['monto'],
-            $data['recargo_aplicado'] ?? 0,
-            $data['concepto'],
-            $data['comprobante_pago'] ?? null
-        );
-
-        if ($resultado) {
-            echo json_encode(['mensaje' => 'Pago actualizado exitosamente']);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Pago no encontrado']);
-        }
-        exit;
-    }
-
-    private function eliminarPago($id) {
-        $resultado = $this->pagoService->eliminarPago($id);
-        if ($resultado) {
-            echo json_encode(['mensaje' => 'Pago eliminado exitosamente']);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Pago no encontrado']);
-        }
-        exit;
-    }
-
-    public function confirmarPago($id) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!isset($data['confirmado_por'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Falta el ID del usuario que confirma']);
-            exit;
-        }
-
-        $resultado = $this->pagoService->confirmarPago($id, $data['confirmado_por']);
-        if ($resultado) {
-            echo json_encode(['mensaje' => 'Pago confirmado exitosamente']);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Pago no encontrado']);
-        }
-        exit;
-    }
-
-    public function obtenerPagosPorUsuario($id_usuario) {
-        $pagos = $this->pagoService->obtenerPagosPorUsuario($id_usuario);
-        echo json_encode($pagos);
-        exit;
-    }
-
-    public function obtenerPagosPorCasa($id_casa) {
-        $pagos = $this->pagoService->obtenerPagosPorCasa($id_casa);
-        echo json_encode($pagos);
-        exit;
-    }
-} 
+}

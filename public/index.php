@@ -65,11 +65,11 @@ $router->add('comunicacion', 'pages/comunicacion.php');
 // RUTAS PARA EL COMITÉ
 // ======================
 $router->add('comite/estadoCuenta', 'comite/estadoCuenta.php');
-$router->add('comite/registroEgreso', 'comite/registroEgreso.php');
+$router->add('comite/cuotas', 'comite/cuotas.php');
 $router->add('comite/reportes', 'comite/reportes.php');
 $router->add('comite/acuseRecibo', 'comite/acuseRecibo.php');
 $router->add('comite/usuariosCasas', 'comite/usuariosCasas.php');
-$router->add('comite/registroCasa', 'comite/registroCasa.php');
+$router->add('comite/registroCasa', 'comite/registoCasa.php'); // O $router->add('comite/registoCasa', 'comite/registoCasa.php');
 
 // ======================
 // RUTAS PARA INQUILINOS
@@ -224,8 +224,9 @@ $router->add('api/cuotas/(\d+)/update', function($id) {
 $router->add('api/cuotas/(\d+)/delete', function($id) {
     header('Content-Type: application/json');
     $controller = new CuotaController();
-    $controller->handleRequest('DELETE', $id);
+    $controller->handleRequest($_SERVER['REQUEST_METHOD'], $id); // ✅ usar método real
 });
+
 
 // ======================
 // RUTA PARA CERRAR SESIÓN

@@ -1,4 +1,3 @@
-
 -- Crear base de datos
 CREATE DATABASE IF NOT EXISTS residencias;
 USE residencias;
@@ -22,13 +21,13 @@ CREATE TABLE casas (
     FOREIGN KEY (id_inquilino) REFERENCES usuarios(id)
 );
 
--- Tabla de cuotas
+-- Tabla de cuotas 
 CREATE TABLE cuotas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     monto DECIMAL(10,2) NOT NULL DEFAULT 650.00,
     recargo DECIMAL(10,2) NOT NULL DEFAULT 50.00,
-    mes YEAR,
-    anio INT
+    mes TINYINT NOT NULL CHECK (mes BETWEEN 1 AND 12),
+    anio INT NOT NULL CHECK (anio >= 2020)
 );
 
 -- Tabla de pagos

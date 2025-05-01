@@ -1,0 +1,75 @@
+.
+├── LICENSE
+├── README.md
+├── api
+│   ├── Controllers
+│   │   ├── CasaController.php
+│   │   ├── CuotaController.php
+│   │   ├── EgresoController.php
+│   │   ├── MensajeForoController.php
+│   │   ├── PagoController.php
+│   │   ├── SolicitudServicioController.php
+│   │   └── UserController.php
+│   ├── Core
+│   │   ├── Conexion.php
+│   │   └── Router.php
+│   ├── Models
+│   │   ├── Casa.php
+│   │   ├── Cuota.php
+│   │   ├── Egreso.php
+│   │   ├── MensajeForo.php
+│   │   ├── Pago.php
+│   │   ├── SolicitudServicio.php
+│   │   └── UserModel.php
+│   ├── Services
+│   │   ├── CasaService.php
+│   │   ├── CuotaService.php
+│   │   ├── EgresoService.php
+│   │   ├── MensajeForoService.php
+│   │   ├── PagoService.php
+│   │   ├── SolicitudServicioService.php
+│   │   └── UserService.php
+│   └── db
+│       └── residencias.sql
+├── composer.json
+├── composer.lock
+├── estructura del proyecto.txt
+├── public
+│   ├── App.php
+│   ├── Components
+│   │   └── slidebar.php
+│   ├── assets
+│   │   ├── css
+│   │   ├── img
+│   │   │   ├── Alto.png
+│   │   │   ├── Logo.png
+│   │   │   ├── background.jpg
+│   │   │   ├── backgroundRegister.jpg
+│   │   │   ├── iconslide.png
+│   │   │   └── image.png
+│   │   └── js
+│   ├── includes
+│   │   ├── auth.php
+│   │   └── footer.php
+│   ├── index.php
+│   ├── pages
+│   │   ├── NotFound.php
+│   │   ├── comite
+│   │   │   ├── acuseRecibo.php
+│   │   │   ├── estadoCuenta.php
+│   │   │   ├── registroCasa.php
+│   │   │   ├── cuotas.php
+│   │   │   ├── reportes.php
+│   │   │   └── usuariosCasas.php
+│   │   ├── dashboard.php
+│   │   ├── home.php
+│   │   ├── inquilino
+│   │   │   ├── pagoCuota.php
+│   │   │   ├── reservarEspacio.php
+│   │   │   └── solicitarServicio.php
+│   │   ├── login.php
+│   │   ├── register.php
+│   │   └── residentes.php
+│   └── uploads
+│       └── procesar_pago.php
+└── vendor

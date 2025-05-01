@@ -27,8 +27,8 @@ $currentUri = $_SERVER['REQUEST_URI']; // Obtener la URI actual para comparació
                         </a>
                     </li>
                     <li>
-                        <a href="/HabitaNet/public/comite/registroEgreso" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/registroEgreso' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
-                            <span>Registrar Egreso</span>
+                        <a href="/HabitaNet/public/comite/cuotas" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/cuotas' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
+                            <span>Administar Cuotas</span>
                         </a>
                     </li>
                     <li>

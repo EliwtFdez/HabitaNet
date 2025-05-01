@@ -1,4 +1,5 @@
 <?php
+
 namespace Api\Services;
 
 use PDO;
@@ -13,8 +14,24 @@ class CuotaService {
     }
 
     public function crearCuota($monto, $recargo, $mes, $anio) {
+        // Validación básica de tipos y rangos
+        if (!is_numeric($mes) || $mes < 1 || $mes > 12 || floor($mes) != $mes) {
+            throw new \InvalidArgumentException("El mes debe ser un entero entre 1 y 12.");
+        }
+        if (!is_numeric($anio) || $anio < 2020 || floor($anio) != $anio) {
+            throw new \InvalidArgumentException("El año debe ser un entero mayor o igual a 2020.");
+        }
+        if (!is_numeric($monto) || $monto < 0) {
+             throw new \InvalidArgumentException("El monto debe ser un número positivo.");
+        }
+         if (!is_numeric($recargo) || $recargo < 0) {
+             throw new \InvalidArgumentException("El recargo debe ser un número positivo.");
+        }
+
+
         $stmt = $this->db->prepare("INSERT INTO cuotas (monto, recargo, mes, anio) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$monto, $recargo, $mes, $anio]);
+        // Asegurarse de que se insertan como enteros
+        $stmt->execute([$monto, $recargo, (int)$mes, (int)$anio]);
         return $this->db->lastInsertId();
     }
 
@@ -22,8 +39,9 @@ class CuotaService {
         $stmt = $this->db->prepare("SELECT * FROM cuotas WHERE id = ?");
         $stmt->execute([$id]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($result) {
+            // Asegúrate que el modelo Cuota y su constructor coinciden con los campos de la BD
             return new \Api\Models\Cuota(
                 $result['id'],
                 $result['monto'],
@@ -32,12 +50,28 @@ class CuotaService {
                 $result['anio']
             );
         }
+        // Si no se encuentra la cuota, devuelve null. El controlador debería manejar esto.
         return null;
     }
 
     public function actualizarCuota($id, $monto, $recargo, $mes, $anio) {
+         // Validación básica de tipos y rangos
+        if (!is_numeric($mes) || $mes < 1 || $mes > 12 || floor($mes) != $mes) {
+            throw new \InvalidArgumentException("El mes debe ser un entero entre 1 y 12.");
+        }
+        if (!is_numeric($anio) || $anio < 2020 || floor($anio) != $anio) {
+            throw new \InvalidArgumentException("El año debe ser un entero mayor o igual a 2020.");
+        }
+         if (!is_numeric($monto) || $monto < 0) {
+             throw new \InvalidArgumentException("El monto debe ser un número positivo.");
+        }
+         if (!is_numeric($recargo) || $recargo < 0) {
+             throw new \InvalidArgumentException("El recargo debe ser un número positivo.");
+        }
+
         $stmt = $this->db->prepare("UPDATE cuotas SET monto = ?, recargo = ?, mes = ?, anio = ? WHERE id = ?");
-        return $stmt->execute([$monto, $recargo, $mes, $anio, $id]);
+        // Asegurarse de que se actualizan como enteros
+        return $stmt->execute([$monto, $recargo, (int)$mes, (int)$anio, $id]);
     }
 
     public function eliminarCuota($id) {
@@ -61,8 +95,17 @@ class CuotaService {
     }
 
     public function obtenerCuotaPorMesAnio($mes, $anio) {
+        // Validación básica de tipos y rangos
+        if (!is_numeric($mes) || $mes < 1 || $mes > 12 || floor($mes) != $mes) {
+            throw new \InvalidArgumentException("El mes debe ser un entero entre 1 y 12.");
+        }
+        if (!is_numeric($anio) || $anio < 2020 || floor($anio) != $anio) {
+            throw new \InvalidArgumentException("El año debe ser un entero mayor o igual a 2020.");
+        }
+
         $stmt = $this->db->prepare("SELECT * FROM cuotas WHERE mes = ? AND anio = ?");
-        $stmt->execute([$mes, $anio]);
+        // Asegurarse de que se usan enteros en la consulta
+        $stmt->execute([(int)$mes, (int)$anio]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($result) {
@@ -70,10 +113,10 @@ class CuotaService {
                 $result['id'],
                 $result['monto'],
                 $result['recargo'],
-                $result['mes'],
-                $result['anio']
+                $result['mes'], // Ya viene como entero de la BD
+                $result['anio']  // Ya viene como entero de la BD
             );
         }
         return null;
     }
-} 
+}
