@@ -2,11 +2,17 @@
 namespace Api\Controllers;
 
 use Api\Core\Conexion;
+use Api\Services\PagoService; 
 use Exception;
 use PDO;
 use DateTime;
 
 class PagoController {
+    private $pagoService; // Propiedad declarada
+
+    public function __construct() {
+        $this->pagoService = new PagoService(); // Instancia creada aquí
+    }
     public function getPagosPorUsuario($id_usuario) {
         try {
             $conn = Conexion::conectar();
@@ -322,4 +328,94 @@ class PagoController {
             ]);
         }
     }
+
+    public function crearPago() {
+        header('Content-Type: application/json');
+        $response = ['success' => false];
+
+        // Verificar que sea método POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405); // Method Not Allowed
+            $response['error'] = 'Método no permitido. Se esperaba POST.';
+            echo json_encode($response);
+            return;
+        }
+
+        // Obtener datos JSON del cuerpo de la solicitud
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Validar datos básicos
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            http_response_code(400); // Bad Request
+            $response['error'] = 'JSON inválido en la solicitud.';
+            echo json_encode($response);
+            return;
+        }
+
+        $campos_requeridos = ['id_usuario', 'id_casa', 'monto', 'concepto', 'fecha_pago', 'recargo_aplicado'];
+        $campos_faltantes = [];
+        foreach ($campos_requeridos as $campo) {
+            if (!isset($data[$campo])) {
+                $campos_faltantes[] = $campo;
+            }
+        }
+
+        if (!empty($campos_faltantes)) {
+            http_response_code(400); // Bad Request
+            $response['error'] = 'Faltan campos requeridos: ' . implode(', ', $campos_faltantes);
+            echo json_encode($response);
+            return;
+        }
+
+        // Validar tipos de datos (ejemplo básico)
+        if (!is_numeric($data['id_usuario']) || !is_numeric($data['id_casa']) || !is_numeric($data['monto']) || $data['monto'] <= 0) {
+             http_response_code(400);
+             $response['error'] = 'Tipos de datos inválidos para id_usuario, id_casa o monto.';
+             echo json_encode($response);
+             return;
+        }
+        // Validar fecha (ejemplo básico)
+        if (DateTime::createFromFormat('Y-m-d', $data['fecha_pago']) === false) {
+            http_response_code(400);
+            $response['error'] = 'Formato de fecha inválido. Use YYYY-MM-DD.';
+            echo json_encode($response);
+            return;
+        }
+
+
+        try {
+            // Llamar al servicio para crear el pago
+            // Se usa la propiedad $this->pagoService inicializada en el constructor
+            $pagoId = $this->pagoService->crearPago(
+                (int)$data['id_usuario'],
+                (int)$data['id_casa'],
+                $data['fecha_pago'],
+                (float)$data['monto'],
+                (float)$data['recargo_aplicado'],
+                $data['concepto'],
+                null // Comprobante no se maneja aquí
+            );
+
+            if ($pagoId) {
+                $response['success'] = true;
+                $response['message'] = 'Pago registrado exitosamente (pendiente de comprobante).';
+                $response['pago_id'] = $pagoId;
+                http_response_code(201); // Created
+            } else {
+                http_response_code(500); // Internal Server Error
+                $response['error'] = 'No se pudo registrar el pago en la base de datos.';
+            }
+
+        } catch (Exception $e) {
+            error_log("Error al crear pago: " . $e->getMessage()); // Loggear el error real
+            http_response_code(500); // Internal Server Error
+            // No exponer detalles internos al cliente en producción
+            $response['error'] = 'Ocurrió un error interno al procesar el pago.';
+            // $response['error_detail'] = $e->getMessage(); // Solo para depuración
+        }
+
+        echo json_encode($response);
+    }
+
+
 }

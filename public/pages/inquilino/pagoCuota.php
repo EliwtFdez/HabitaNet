@@ -301,10 +301,10 @@ include __DIR__ . '/../../Components/slidebar.php';
         }
 
         if (formPago) {
-            formPago.addEventListener('submit', async (event) => {
+            formPago.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
-                const submitButton = formPago.querySelector('button[type="submit"]');
+                const submitButton = this.querySelector('button[type="submit"]');
                 submitButton.disabled = true;
                 submitButton.innerHTML = `
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -322,73 +322,91 @@ include __DIR__ . '/../../Components/slidebar.php';
                 try {
                     // Validar datos antes de enviar
                     const monto = parseFloat(montoInput.value.replace(/[^0-9.]/g, ''));
-                    const concepto = formPago.querySelector('#concepto').value;
-                    const fecha_pago = formPago.querySelector('#fecha_pago').value;
+                    const concepto = this.querySelector('#concepto').value;
+                    const fecha_pago = this.querySelector('#fecha_pago').value;
+
+                    // --- ELIMINAR ESTA SECCIÓN COMPLETA ---
+                    // const comprobanteInput = this.querySelector('#comprobante'); // Obtener el input del archivo
+                    // // Validar que se haya seleccionado un archivo
+                    // if (!comprobanteInput || !comprobanteInput.files || comprobanteInput.files.length === 0) {
+                    //      throw new Error('Debe seleccionar un archivo de comprobante.'); // <-- ESTE ES EL ERROR QUE VES
+                    // }
+                    // const file = comprobanteInput.files[0];
+                    // --- FIN DE SECCIÓN A ELIMINAR ---
+
 
                     if (isNaN(monto) || monto <= 0) {
                         throw new Error('El monto debe ser un número válido mayor a 0');
                     }
-
                     if (!concepto) {
                         throw new Error('Debe seleccionar un concepto');
                     }
-
                     if (!fecha_pago) {
                         throw new Error('Debe seleccionar una fecha de pago');
                     }
 
-                    // Crear objeto con los datos del formulario
-                    const formData = {
-                        id_usuario: idUsuario,
+                    // --- CAMBIAR FormData por un objeto JSON ---
+                    // const formData = new FormData(this); // Ya no se usa FormData
+                    const datosPago = {
+                        id_usuario: idUsuario, // Asegúrate que idUsuario esté disponible aquí
+                        id_casa: idCasa,       // Asegúrate que idCasa esté disponible aquí
                         monto: monto,
                         concepto: concepto,
                         fecha_pago: fecha_pago,
-                        recargo_aplicado: tieneRecargo ? 1 : 0
+                        recargo_aplicado: tieneRecargo ? recargo : 0 // Asegúrate que tieneRecargo y recargo estén disponibles
                     };
 
-                    console.log('Enviando datos:', formData); // Para debugging
+                    console.log('Enviando datos (JSON):', datosPago);
 
-                    const response = await fetch(`${apiBaseUrl}/pagos`, {
+                    // --- MODIFICAR fetch para enviar JSON Y AÑADIR BARRA FINAL ---
+                    const response = await fetch('/HabitaNet/public/api/pagos/', { // <-- AÑADIR BARRA FINAL AQUÍ
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify(formData)
+                        body: JSON.stringify(datosPago)
                     });
+                    // --- FIN DE MODIFICACIÓN fetch ---
 
-                    const data = await response.text(); // Primero obtenemos el texto
-                    console.log('Respuesta del servidor:', data); // Para debugging
 
-                    let result;
+                    console.log('Respuesta inicial del servidor:', response);
+                    const responseText = await response.text();
+                    console.log('Respuesta del servidor (texto):', responseText);
+
+                    if (!response.ok) {
+                        let errorMsg = `Error del servidor: ${response.status} ${response.statusText}`;
+                        try {
+                            const errorData = JSON.parse(responseText);
+                            errorMsg = errorData.error || errorMsg;
+                        } catch (e) { /* No es JSON, usar texto */ }
+                        throw new Error(errorMsg);
+                    }
+
+                    let data;
                     try {
-                        // Intentar extraer el JSON del HTML si es necesario
-                        const jsonMatch = data.match(/\{.*\}/s);
-                        if (jsonMatch) {
-                            result = JSON.parse(jsonMatch[0]);
-                        } else {
-                            result = JSON.parse(data);
-                        }
+                        data = JSON.parse(responseText);
                     } catch (e) {
-                        console.error('Error parsing JSON:', data);
-                        throw new Error('Respuesta inválida del servidor');
+                        console.error('Error parsing JSON:', responseText);
+                        throw new Error('Respuesta inválida del servidor (no es JSON válido)');
                     }
 
-                    if (!result.success) {
-                        throw new Error(result.error || 'Error al registrar el pago');
-                    }
+                    console.log('Respuesta JSON del servidor:', data);
 
-                    if (feedbackMessage) {
-                        feedbackMessage.textContent = result.mensaje || 'Pago registrado exitosamente. Pendiente de confirmación.';
-                        feedbackMessage.className = 'mt-4 text-sm text-green-600';
+                    if (data.success) {
+                        if (feedbackMessage) {
+                            feedbackMessage.textContent = data.message || 'Pago enviado exitosamente.';
+                            feedbackMessage.className = 'mt-4 text-sm text-green-600';
+                        }
+                        this.reset();
+                        // Deshabilitar el formulario para evitar doble envío
+                        Array.from(this.elements).forEach(el => el.disabled = true);
+                        submitButton.innerHTML = 'Pago Enviado';
+                        cargarHistorialPagos();
+                        cargarEstadoCuenta();
+                    } else {
+                        throw new Error(data.error || 'Error desconocido al registrar el pago.');
                     }
-
-                    formPago.reset();
-                    cargarHistorialPagos();
-                    cargarEstadoCuenta();
-                    
-                    setTimeout(() => {
-                    location.reload();
-                    }, 3000);
 
                 } catch (error) {
                     console.error('Error enviando pago:', error);
@@ -396,6 +414,7 @@ include __DIR__ . '/../../Components/slidebar.php';
                         feedbackMessage.textContent = `Error: ${error.message}`;
                         feedbackMessage.className = 'mt-4 text-sm text-red-600';
                     }
+                    // Habilitar el botón de nuevo en caso de error
                     submitButton.disabled = false;
                     submitButton.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -407,6 +426,7 @@ include __DIR__ . '/../../Components/slidebar.php';
             });
         }
 
+        // Cargar datos iniciales
         cargarEstadoCuenta();
         cargarHistorialPagos();
     });

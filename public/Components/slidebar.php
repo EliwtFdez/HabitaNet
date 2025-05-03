@@ -46,11 +46,6 @@ $currentUri = $_SERVER['REQUEST_URI']; // Obtener la URI actual para comparació
                             <span>Usuarios y Casas</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="/HabitaNet/public/comite/registroCasa" class="flex items-center p-2 rounded-lg hover:bg-gray-700 <?php echo ($currentUri == '/HabitaNet/public/comite/registroCasa' ? 'shadow-lg bg-gray-900' : 'text-gray-300'); ?>">
-                            <span>Registrar Casa</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
         <?php elseif (isInquilino()): ?>

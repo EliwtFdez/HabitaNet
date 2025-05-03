@@ -553,6 +553,19 @@ $router->add('api/pagos', function() {
 });
 
 $router->add('api/pagos', function() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Content-Type: application/json');
+        // Asegúrate que el namespace sea correcto
+        $controller = new Api\Controllers\PagoController();
+        $controller->crearPago(); // Llamar al método que maneja POST
+    } else {
+        http_response_code(405); // Method Not Allowed
+        echo json_encode(['success' => false, 'error' => 'Método no permitido. Se requiere POST.']);
+    }
+    exit;
+}, 'post'); // ¡Importante especificar 'post'!
+
+$router->add('api/pagos', function() {
     header('Content-Type: application/json');
     header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
